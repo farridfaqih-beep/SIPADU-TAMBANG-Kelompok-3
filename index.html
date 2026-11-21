@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIPADU-TAMBANG — Sistem Informasi Pelaporan Aktivitas Tambang Ilegal Kota Palu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ================= GATE / LOGIN ================= -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-intro">
+      <div class="mark"><span class="dot"></span>SIPADU-TAMBANG</div>
+      <div class="hero3d-wrap" aria-hidden="true">
+        <div class="hero3d">
+          <svg class="face-a" viewBox="0 0 24 24" fill="none" stroke="#8FC6A6" stroke-width="1.3"><path d="M20 4C11 4 5 10 5 17c0 1.5.3 2.5.3 2.5S6 20 7.5 20C15 20 20 13 20 4z"/><path d="M6 18C11 13 15 9 20 4"/></svg>
+          <svg class="face-b" viewBox="0 0 24 24" fill="none" stroke="#8FC6A6" stroke-width="1.3"><path d="M20 4C11 4 5 10 5 17c0 1.5.3 2.5.3 2.5S6 20 7.5 20C15 20 20 13 20 4z"/><path d="M6 18C11 13 15 9 20 4"/></svg>
+        </div>
+      </div>
+      <h1>Tambang pasir dan galian C ilegal jarang terlihat sebelum kerusakannya parah.</h1>
+      <p>Sistem ini membuka jalur langsung antara warga Kota Palu dan petugas lingkungan hidup, supaya aktivitas tambang tanpa izin dilaporkan lebih cepat, ditangani berdasarkan data, dan dipantau sampai selesai.</p>
+      <div class="stat-row">
+        <div class="stat"><b id="gateStatTotal">–</b><span>Laporan tercatat</span></div>
+        <div class="stat"><b id="gateStatDone">–</b><span>Sudah ditangani</span></div>
+        <div class="stat"><b id="gateStatZones">–</b><span>Kecamatan terpantau</span></div>
+      </div>
+    </div>
+    <div class="gate-forms">
+      <div class="role-tabs">
+        <button class="role-tab active" id="tabWarga" onclick="switchGateTab('warga')">Saya warga</button>
+        <button class="role-tab" id="tabPetugas" onclick="switchGateTab('petugas')">Saya petugas</button>
+      </div>
+
+      <div id="formWarga">
+
+        <div id="wargaLoginView">
+          <div class="field">
+            <label for="wargaLoginEmail">Email</label>
+            <input type="email" id="wargaLoginEmail" placeholder="nama@email.com" autocomplete="username">
+          </div>
+          <div class="field">
+            <label for="wargaLoginSandi">Sandi</label>
+            <div class="password-input-wrap">
+              <input type="password" id="wargaLoginSandi" placeholder="Masukkan sandi" autocomplete="current-password" onkeydown="if(event.key==='Enter'){loginWarga();}">
+              <button type="button" class="password-toggle" onclick="togglePasswordVisibility('wargaLoginSandi', this)" aria-label="Tampilkan kata sandi" title="Tampilkan kata sandi"><svg class="eye-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg></button>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-block" onclick="loginWarga()">Masuk sebagai warga</button>
+          <p class="gate-switch">Belum punya akun? <a href="#" onclick="event.preventDefault(); showWargaView('register');">Daftar sebagai warga</a></p>
+          <p class="gate-note">Sebagai warga, Anda bisa membuat laporan, memantau status laporan Anda, dan melihat peta sebaran laporan di Kota Palu.</p>
+        </div>
+
+        <div id="wargaRegisterView" class="hidden">
+          <div class="field">
+            <label for="wargaRegNama">Nama Anda</label>
+            <input type="text" id="wargaRegNama" placeholder="Contoh: Amelia Putri" autocomplete="name">
+            <span class="login-guidance">Masukkan nama dengan minimal 3 huruf.<br>Tidak boleh menggunakan angka.<br>Contoh benar: Amelia, Putri Sari<br>Contoh salah: A1, Jo2</span>
+          </div>
+          <div class="field">
+            <label for="wargaRegEmail">Email</label>
+            <input type="email" id="wargaRegEmail" placeholder="nama@email.com" autocomplete="username">
+            <span class="login-guidance">Email tidak boleh hanya terdiri dari angka.<br>Gunakan kombinasi huruf dan angka.<br>Contoh benar: orlikon123@gmail.com, bagus.putra99@yahoo.com<br>Contoh salah: 123456@gmail.com</span>
+          </div>
+          <div class="field">
+            <label for="wargaRegSandi">Kata Sandi</label>
+            <div class="password-input-wrap">
+              <input type="password" id="wargaRegSandi" placeholder="Minimal 6 karakter" autocomplete="new-password">
+              <button type="button" class="password-toggle" onclick="togglePasswordVisibility('wargaRegSandi', this)" aria-label="Tampilkan kata sandi" title="Tampilkan kata sandi"><svg class="eye-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg></button>
+            </div>
+            <span class="login-guidance">Minimal 6 karakter.<br>Harus menggunakan kombinasi huruf, angka, dan simbol.<br>Contoh benar: Bagus@2026, Palu#Tambang88<br>Contoh salah: abcdef, 123456</span>
+          </div>
+          <div class="field">
+            <label for="wargaRegKonfirmasi">Konfirmasi Kata Sandi</label>
+            <div class="password-input-wrap">
+              <input type="password" id="wargaRegKonfirmasi" placeholder="Ulangi sandi" autocomplete="new-password" onkeydown="if(event.key==='Enter'){registerWarga();}">
+              <button type="button" class="password-toggle" onclick="togglePasswordVisibility('wargaRegKonfirmasi', this)" aria-label="Tampilkan kata sandi" title="Tampilkan kata sandi"><svg class="eye-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg></button>
+            </div>
+            <span class="login-guidance">Ulangi kata sandi yang sama untuk verifikasi.</span>
+          </div>
+          <div class="login-prompts">
+            <span>"Pastikan nama Anda hanya huruf dan minimal 3 karakter."</span>
+            <span>"Gunakan email dengan kombinasi huruf dan angka, bukan angka saja."</span>
+            <span>"Kata sandi harus kuat: minimal 6 karakter dengan huruf, angka, dan simbol."</span>
+            <span>"Klik ikon simbol mata untuk melihat kata sandi, klik lagi untuk menyembunyikannya."</span>
+          </div>
+          <button class="btn btn-primary btn-block" onclick="registerWarga()">Daftar akun warga</button>
+          <p class="gate-switch">Sudah punya akun? <a href="#" onclick="event.preventDefault(); showWargaView('login');">Masuk di sini</a></p>
+        </div>
+
+      </div>
+
+      <div id="formPetugas" class="hidden">
+
+        <div id="petugasLoginView">
+          <div class="field">
+            <label for="petugasLoginEmail">Email</label>
+            <input type="email" id="petugasLoginEmail" placeholder="nama@dlh.palu.go.id" autocomplete="username">
+          </div>
+          <div class="field">
+            <label for="petugasLoginSandi">Sandi</label>
+            <div class="password-input-wrap">
+              <input type="password" id="petugasLoginSandi" placeholder="Masukkan sandi" autocomplete="current-password" onkeydown="if(event.key==='Enter'){loginPetugas();}">
+              <button type="button" class="password-toggle" onclick="togglePasswordVisibility('petugasLoginSandi', this)" aria-label="Tampilkan kata sandi" title="Tampilkan kata sandi"><svg class="eye-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg></button>
+            </div>
+          </div>
+          <button class="btn btn-clay btn-block" onclick="loginPetugas()">Masuk sebagai petugas</button>
+          <p class="gate-switch">Belum punya akun petugas? <a href="#" onclick="event.preventDefault(); showPetugasView('register');">Daftar di sini</a></p>
+          <p class="gate-note">Sebagai petugas, Anda memverifikasi laporan, mencatat tindak lanjut, dan membaca dashboard serta analisis data lingkungan.</p>
+        </div>
+
+        <div id="petugasRegisterView" class="hidden">
+          <div class="field">
+            <label for="petugasRegNama">Nama petugas</label>
+            <input type="text" id="petugasRegNama" placeholder="Contoh: Puge, S.Ling" autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="petugasRegEmail">Email</label>
+            <input type="email" id="petugasRegEmail" placeholder="nama@dlh.palu.go.id" autocomplete="username">
+          </div>
+          <div class="field">
+            <label for="petugasRegSandi">Sandi</label>
+            <div class="password-input-wrap">
+              <input type="password" id="petugasRegSandi" placeholder="Minimal 6 karakter" autocomplete="new-password">
+              <button type="button" class="password-toggle" onclick="togglePasswordVisibility('petugasRegSandi', this)" aria-label="Tampilkan kata sandi" title="Tampilkan kata sandi"><svg class="eye-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg></button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="petugasRegKonfirmasi">Konfirmasi sandi</label>
+            <div class="password-input-wrap">
+              <input type="password" id="petugasRegKonfirmasi" placeholder="Ulangi sandi" autocomplete="new-password">
+              <button type="button" class="password-toggle" onclick="togglePasswordVisibility('petugasRegKonfirmasi', this)" aria-label="Tampilkan kata sandi" title="Tampilkan kata sandi"><svg class="eye-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg></button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="petugasRegKode">Kode akses pendaftaran</label>
+            <div class="password-input-wrap">
+              <input type="password" id="petugasRegKode" placeholder="Masukkan kode akses" autocomplete="off" onkeydown="if(event.key==='Enter'){registerPetugas();}">
+              <button type="button" class="password-toggle" onclick="togglePasswordVisibility('petugasRegKode', this)" aria-label="Tampilkan kata sandi" title="Tampilkan kata sandi"><svg class="eye-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/></svg></button>
+            </div>
+            <span class="hint">Kode demo untuk simulasi tugas: <strong>DLH2026</strong></span>
+          </div>
+          <button class="btn btn-clay btn-block" onclick="registerPetugas()">Daftar akun petugas</button>
+          <p class="gate-switch">Sudah punya akun? <a href="#" onclick="event.preventDefault(); showPetugasView('login');">Masuk di sini</a></p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= APP SHELL ================= -->
+<div id="app-shell">
+  <div class="topbar">
+    <div class="mark"><span class="dot"></span>SIPADU-TAMBANG <span style="color:var(--ink-faint); font-weight:400; font-size:12.5px; margin-left:4px;">Kota Palu</span></div>
+    <div class="who">
+      <span class="role-pill" id="rolePill">Warga</span>
+      <span id="whoName" style="font-size:13.5px; color:var(--ink-soft);"></span>
+      <button class="btn btn-ghost btn-sm" onclick="logout()">Keluar</button>
+    </div>
+  </div>
+
+  <nav class="sidenav" id="sidenav"></nav>
+  <nav class="bottomnav" id="bottomnav"></nav>
+
+  <main id="content"></main>
+</div>
+
+<!-- ================= MODAL (report detail / kelola) ================= -->
+<div class="modal-veil" id="modalVeil">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="eyebrow-plain" id="modalTicket"></div>
+        <h3 id="modalTitle" style="margin:0; font-size:17px;"></h3>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">Tutup</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot" id="modalFoot"></div>
+  </div>
+</div>
+
+<div id="toastHost"></div>
+
+<!-- ================= MODAL KAMERA (fitur ambil foto langsung) ================= -->
+<div class="camera-veil" id="cameraVeil">
+  <div class="camera-modal">
+
+    <div class="camera-head">
+      <div>
+        <h3>Ambil foto langsung</h3>
+        <div class="hint">Arahkan kamera ke lokasi kejadian, lalu tekan tombol jepret.</div>
+      </div>
+      <button type="button" class="camera-close-btn" onclick="closeCameraModal()">Tutup</button>
+    </div>
+
+    <div class="camera-body" id="cameraBody">
+      <video id="cameraVideo" autoplay playsinline muted></video>
+      <canvas id="cameraCanvas"></canvas>
+      <img id="cameraShotImg" class="camera-shot" style="display:none;" alt="Hasil jepretan">
+      <div class="camera-status" id="cameraStatus">
+        <div class="spinner"></div>
+        <span id="cameraStatusText">Membuka kamera…</span>
+      </div>
+    </div>
+
+    <div class="camera-foot" id="cameraFootLive">
+      <span class="camera-count" id="cameraCount">0/5 foto</span>
+      <button type="button" class="camera-shutter" onclick="capturePhoto()" title="Jepret foto" aria-label="Jepret foto"></button>
+      <div class="side-actions">
+        <button type="button" class="camera-switch-btn" onclick="switchCamera()">Ganti kamera</button>
+      </div>
+    </div>
+
+    <div class="camera-foot" id="cameraFootReview" style="display:none;">
+      <span class="camera-count">Pratinjau hasil jepretan</span>
+      <div class="side-actions">
+        <button type="button" class="camera-retake-btn" onclick="retakePhoto()">Ambil ulang</button>
+        <button type="button" class="camera-use-btn" onclick="useCapturedPhoto()">Gunakan foto ini</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
